@@ -12,6 +12,9 @@ pd.set_option('display.max_colwidth', None)
 # Develops the map in folium with markers on the country displaying information within the data frame
 def holder():
 	# Covid 19 data for each country
+	#world = pd.read_json('world.json')
+	#world.to_csv()
+	#print(world)
 	data = pd.read_csv('covid.csv')
 	# Country codes to map each country to folium
 	ccode = pd.read_csv('CountryCodes1.txt')
@@ -31,7 +34,7 @@ def holder():
 	df1.loc[:, 'Longitude'] = pd.Series(long)
 	# date = input('Enter date 1/1/2020 format')
 	# pick which date you want to be depicted
-	test = df1.loc[df1['date'] == '3/10/2020'].fillna(0)
+	test = df1.loc[df1['date'] == '5/10/2020'].fillna(0)
 	print(test)
 	test2 = test.set_index('iso_code', drop=True)
 	#test.reset_index(inplace=True)
@@ -40,8 +43,9 @@ def holder():
 	fg = folium.FeatureGroup(name='My Map')
 
 
+
 	# test2 = test1.set_index('iso_code', drop=True)
-	fg.add_child(folium.GeoJson(data=open('world.json', 'r', encoding='utf-8-sig').read(), style_function=lambda z: {'fillColor': 'YlOrRd' if z['properties']['ISO3'] in test2.index else 'Red'}))
+	fg.add_child(folium.GeoJson(data=open('world.json', 'r', encoding='utf-8-sig').read(), style_function=lambda z: {'fillColor': color(test2, z['properties']['ISO3']) if functown(test2, z['properties']['ISO3']) != 0 else color(test2, z['properties']['ISO3'])}))
 	#test2[z['properties']['ISO3'],'total_cases_per_million']
 
 	for i in test.index:
@@ -57,14 +61,23 @@ def holder():
 
 def functown(pdata,z):
 	if z in pdata.index:
-		try:
-			value = pdata.loc[z, 'total_cases_per_million']
-			print(value)
-			return int(value)
-		except(ValueError, KeyError):
-			return 0
+		value = pdata.loc[z, 'total_cases_per_million']
+		print(value)
+		return int(value)
+	else:
+		return 0
 
-
+def color(pdata,z):
+	if z in pdata.index:
+		value = pdata.loc[z, 'total_cases_per_million']
+		if value == 0:
+			return 'White'
+		elif value <= 200:
+			return 'Yellow'
+		elif value > 200 and value < 1000:
+			return '#fc4503'
+		elif value >= 1000:
+			return '#fc03eb'
 
 
 
