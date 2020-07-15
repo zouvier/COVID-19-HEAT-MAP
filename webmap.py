@@ -1,5 +1,6 @@
 import folium
 import pandas as pd
+import matplotlib.pyplot as plt
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
@@ -12,9 +13,9 @@ pd.set_option('display.max_colwidth', None)
 # Develops the map in folium with markers on the country displaying information within the data frame
 def holder():
 	# Covid 19 data for each country
-	#world = pd.read_json('world.json')
-	#world.to_csv()
-	#print(world)
+	# world = pd.read_json('world.json')
+	# world.to_csv()
+	# print(world)
 	data = pd.read_csv('covid.csv')
 	# Country codes to map each country to folium
 	ccode = pd.read_csv('CountryCodes1.txt')
@@ -34,13 +35,13 @@ def holder():
 	df1.loc[:, 'Longitude'] = pd.Series(long)
 	# date = input('Enter date 1/1/2020 format')
 	# pick which date you want to be depicted
-	test = df1.loc[df1['date'] == '5/10/2020'].fillna(0)
+	test = df1.loc[df1['date'] == '7/14/2020'].fillna(0)
 	print(test)
 	test2 = test.set_index('iso_code', drop=True)
 	#test.reset_index(inplace=True)
-	print(test2.index)
-	map1 = folium.Map(location=[0, 0], zoom_start=6, tiles='OpenStreetMap')
-	fg = folium.FeatureGroup(name='My Map')
+	#print(test2.index)
+	map1 = folium.Map(location=[0, 0],max_bounds=True, zoom_start=3, min_zoom=2, tiles='OpenStreetMap')
+	fg = folium.FeatureGroup(name='Current spread of Corona Virus')
 
 
 
@@ -49,7 +50,8 @@ def holder():
 	#test2[z['properties']['ISO3'],'total_cases_per_million']
 
 	for i in test.index:
-		fg.add_child(folium.Marker(location=[(test.loc[i, 'Latitude']), (test.loc[i, 'Longitude'])], popup=test.loc[i, 'total_cases_per_million'], icon=folium.Icon(color='red')))
+		fg.add_child(folium.Marker(location=[(test.loc[i, 'Latitude']), (test.loc[i, 'Longitude'])], popup= graph(test,i), icon=folium.Icon(color='red')))
+
 
 
 
@@ -59,10 +61,20 @@ def holder():
 
 	map1.save('test1.html')
 
+
+def graph(gdata, i):
+	return ('<b><font color=red> Date:</font></b> ' + str(gdata.loc[i,'date']) + '<br>' +
+	        '<b><font color=red>Country:</font></b> '+str(gdata.loc[i, 'location']) + '<br>' +
+	        '<b><font color=red>cases:</font></b> '+str(gdata.loc[i,'total_cases']) + '<br>' +
+	        '<b><font color=red>deaths:</font></b> '+ str(gdata.loc[i,'total_deaths']))
+
+
+
+
 def functown(pdata,z):
 	if z in pdata.index:
 		value = pdata.loc[z, 'total_cases_per_million']
-		print(value)
+		#print(value)
 		return int(value)
 	else:
 		return 0
@@ -87,4 +99,5 @@ def testing():
 	for i in file:
 		print(i)
 	file.close()
+
 holder()
